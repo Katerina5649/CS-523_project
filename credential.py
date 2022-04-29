@@ -62,7 +62,7 @@ def generate_key(
     return (sk, pk)
 
 
-    raise NotImplementedError()
+    #raise NotImplementedError()
 
 
 def sign(
@@ -79,7 +79,7 @@ def sign(
     
 
 
-    raise NotImplementedError()
+    #raise NotImplementedError()
 
 
 def verify(
@@ -95,7 +95,7 @@ def verify(
     e2 = pk[L+1]
     
     return ((s1 != G1.neutral_element()) and s1.pair(e1) == s2.pair(e2) )
-    raise NotImplementedError()
+    #raise NotImplementedError()
 
 
 #################################
@@ -104,7 +104,6 @@ def verify(
 
 ## ISSUANCE PROTOCOL ##
 
-attributes = List[Attribute]
 
 def create_issue_request(
         pk: PublicKey,
@@ -118,14 +117,16 @@ def create_issue_request(
     """
     L = (len(pk) - 3) / 2 
     t = G1.order().random()
-    g = G1.generator()
+    g = pk[0]
     y = pk[L+3:]
-    y = [y[index] for index in AttributeMap]
-    a = [attributes[index] for index in AttributeMap]
+    attributes = [x[0] for x in user_attributes]
+    indices = [x[1] for x in user_attributes]
+    y = [y[index] for index in indices]
+    
 
-    C = (g ** t ) * math.prod(a ** b for a,b in zip (y,a))
+    C = (g ** t ) * math.prod(a ** b for a,b in zip (y,attributes))
     return C
-    raise NotImplementedError()
+    #raise NotImplementedError()
 
 
 def sign_issue_request(
@@ -141,14 +142,16 @@ def sign_issue_request(
     u = G1.order().random()
     L = (len(pk) - 3) / 2 
     y = pk[L+3:]
-    y = [y[index] for index in AttributeMap]
-    a = [attributes[index] for index in AttributeMap]
+    attributes = [x[0] for x in issuer_attributes]
+    indices = [x[1] for x in issuer_attributes]
+    y = [y[index] for index in indices]
+    
     s_1 = pk[0] ** u
     
-    s_2 = (sk[1] * request * math.prod(a ** b for a,b in zip (y,a))) ** u
+    s_2 = (sk[1] * request * math.prod(a ** b for a,b in zip (y,attributes))) ** u
 
     return(s_1, s_2)
-    raise NotImplementedError()
+    #raise NotImplementedError()
 
 
 def obtain_credential(
@@ -159,9 +162,10 @@ def obtain_credential(
 
     This corresponds to the "Unblinding signature" step.
     """
-    
+    t = G1.order().random()
+    return (response[0],response[1].div(response[0]** t))
 
-    raise NotImplementedError()
+    #raise NotImplementedError()
 
 
 ## SHOWING PROTOCOL ##
@@ -173,7 +177,11 @@ def create_disclosure_proof(
         message: bytes
     ) -> DisclosureProof:
     """ Create a disclosure proof """
-    raise NotImplementedError()
+    r = G1.order().random()
+    t = G1.order().random()
+    s = (credential[0]**r,(credential[1]*(credential[0]**t) ** r))
+    #PK_1 = s[1].pair()
+    #raise NotImplementedError()
 
 
 def verify_disclosure_proof(
